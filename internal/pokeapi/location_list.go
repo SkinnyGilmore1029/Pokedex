@@ -2,6 +2,7 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -9,6 +10,7 @@ import (
 // ListLocations -
 func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 	url := baseURL + "/location-area"
+	fmt.Println("DEBUG ListLocations is requesting URL:", url)
 	if pageURL != nil {
 		url = *pageURL
 	}
