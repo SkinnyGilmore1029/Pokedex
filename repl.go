@@ -5,48 +5,53 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/bootdotdev/pokedexcli/internal/pokeapi"
 )
 
-func startRepl() {
-	input := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("Pokedex > ")     //print command prompt
-		input.Scan()                // get the user iput
-		text := input.Text()        // convert and save input to text
-		cleaned := cleanInput(text) // cleans the text
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
 
-		//check to make sure the command is not empty
-		if len(cleaned) == 0 {
+func startRepl(cfg *config) {
+	reader := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("Pokedex > ")
+		reader.Scan()
+
+		words := cleanInput(reader.Text())
+		if len(words) == 0 {
 			continue
 		}
-		// get the first word of the input
-		first_word := cleaned[0]
 
-		// check if the command exists
-		if commands, exists := getCommands()[first_word]; exists {
-			if err := commands.callback(); err != nil {
-				fmt.Println("Error:", err)
+		commandName := words[0]
+
+		command, exists := getCommands()[commandName]
+		if exists {
+			err := command.callback(cfg)
+			if err != nil {
+				fmt.Println(err)
 			}
+			continue
 		} else {
 			fmt.Println("Unknown command")
+			continue
 		}
 	}
 }
 
 func cleanInput(text string) []string {
-	var cleaned []string
-	noWhitespace := strings.TrimSpace(text)
-	lowered := strings.ToLower(noWhitespace)
-	splitWords := strings.Fields(lowered)
-	cleaned = splitWords
-
-	return cleaned
+	output := strings.ToLower(text)
+	words := strings.Fields(output)
+	return words
 }
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -55,6 +60,16 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Get the next page of locations",
+			callback:    commandMapf,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Get the previous page of locations",
+			callback:    commandMapb,
 		},
 		"exit": {
 			name:        "exit",
