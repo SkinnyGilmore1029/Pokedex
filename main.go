@@ -1,32 +1,8 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
-)
-
-func cleanInput(text string) []string {
-	var cleaned []string
-	noWhitespace := strings.TrimSpace(text)
-	lowered := strings.ToLower(noWhitespace)
-	splitWords := strings.Fields(lowered)
-	cleaned = splitWords
-
-	return cleaned
-}
-
 func main() {
-	input := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("Pokedex > ")
-		input.Scan()
-		text := input.Text()
-		cleaned := cleanInput(text)
-		first_word := cleaned[0]
-		fmt.Printf("Your command was: %s\n", first_word)
-	}
+
+	startRepl()
 
 }
 
@@ -39,4 +15,23 @@ You'll want to use functions from Go's strings package. Some helpful ones to loo
 strings.TrimSpace() - removes leading/trailing whitespace
 strings.Fields() - splits on whitespace and handles multiple spaces nicely
 strings.ToLower() - converts to lowercase
+
+if first_word == "exit" {
+			if err := Commands[first_word].callback(); err != nil {
+				fmt.Println("Error:",err)
+			}
+		}
+
+var Commands = map[string]cliCommand{
+	"exit": {
+		name:        "exit",
+		description: "Exit the Pokedex",
+		callback:    commandExit,
+	},
+	"help": {
+		name:        "help",
+		description:  "Displays a help message",
+		callback:    commandHelp,
+	},
+}
 */
