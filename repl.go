@@ -23,7 +23,7 @@ func startRepl() {
 		first_word := cleaned[0]
 
 		// check if the command exists
-		if commands, exists := Commands[first_word]; exists {
+		if commands, exists := getCommands()[first_word]; exists {
 			if err := commands.callback(); err != nil {
 				fmt.Println("Error:", err)
 			}
